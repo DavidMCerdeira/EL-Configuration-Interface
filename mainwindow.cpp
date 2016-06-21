@@ -10,6 +10,8 @@
 #include <QDirModel>
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <QSplitter>
+#include <QDebug>
 #define WIND_WIDTH 450
 #define WIND_HEIGHT 120
 #define WIND_HEIGHT2 500
@@ -23,7 +25,12 @@ MainWindow::MainWindow(QWidget *parent) :
     createActions();
     createMenus();
     initDirectories();
+
+    connect(ui->elaborateButton, SIGNAL(clicked(bool)), this, SLOT(elaborate(bool)));
+    ui->elaborateButton->setHidden(true);
+
     setAcceptDrops(true); //Drag & Drop
+
 
     setWindowTitle(tr("ELCI (EL Configuration Interface)"));
     setMinimumSize(300, WIND_HEIGHT);
@@ -40,6 +47,7 @@ void MainWindow::loadProject(){
 }
 
 void MainWindow::openProject(const QString &dir){
+    basePath = dir + '/';
     SpecificElabPath = dir + "/EL/SpecificElaborations/";
     QString ConfigPath = dir + "/EL/Configs/";
     resize(WIND_WIDTH, WIND_HEIGHT);
@@ -48,6 +56,7 @@ void MainWindow::openProject(const QString &dir){
     if(!QDir(SpecificElabPath).exists() || !QDir(ConfigPath).exists()){
         QString message = tr("Project does not contain the directory /EL/SpecificElaborations/ or /EL/Configs/");
         ui->treeView->setVisible(false);
+        ui->elaborateButton->setHidden(true);
         ui->label->setVisible(true);
         statusBar()->showMessage(message);
         return;
@@ -59,6 +68,7 @@ void MainWindow::openProject(const QString &dir){
 
     if(!directories.hasNext()){
         ui->treeView->setVisible(false);
+        ui->elaborateButton->setHidden(true);
         ui->label->setVisible(true);
         QString message = tr("Project has no folder inside /EL/Configs/");
         statusBar()->showMessage(message);
@@ -73,6 +83,7 @@ void MainWindow::openProject(const QString &dir){
         ui->treeView->setRootIndex(dirModel->index(subpath));//Has 1 TopLevel (go inside)
 
     ui->treeView->setVisible(true);
+    ui->elaborateButton->setHidden(false);
     ui->label->setVisible(false);
     QString message = tr("Project Loaded Successfully!");
     resize(WIND_WIDTH, WIND_HEIGHT2);
@@ -80,8 +91,23 @@ void MainWindow::openProject(const QString &dir){
     //ui->treeView->setCurrentIndex(dirModel->index(directoryRoot));
 }
 
+void MainWindow::elaborate(bool clicked)
+{
+    //qDebug() << "Here";
+    ui->elaborateButton->setEnabled(false);
+    consoleOutput = new ConsoleOutput(basePath);
+    connect(consoleOutput, SIGNAL(accepted()), this, SLOT(elaborationEnded()));
+    consoleOutput->show();
+}
+
 void MainWindow::helpInfo(){  
     QMessageBox::information(this,"Help","NÃO QUERO SABER! ISSO É PROBLEMA TEU!");
+}
+
+void MainWindow::elaborationEnded()
+{
+    delete consoleOutput;
+    ui->elaborateButton->setEnabled(true);
 }
 
 void MainWindow::createActions()
@@ -165,6 +191,7 @@ void MainWindow::dropEvent(QDropEvent *e)
 {
     //foreach (const QUrl &url, e->mimeData()->urls())
     openProject(e->mimeData()->urls().first().toLocalFile());
+
 }
 
 MainWindow::~MainWindow()

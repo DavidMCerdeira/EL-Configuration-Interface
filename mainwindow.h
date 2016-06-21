@@ -5,6 +5,9 @@
 #include <QActionGroup>
 #include <QFileSystemModel>
 #include <editview.h>
+#include "consoleoutput.h"
+
+
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +21,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QString SpecificElabPath;
+    QString basePath;
 
 private:
     Ui::MainWindow *ui;
@@ -38,9 +42,12 @@ private:
     QFileSystemModel *dirModel;
 
     EditView *editView;
+    ConsoleOutput *consoleOutput;
 private slots:
     void loadProject();
     void helpInfo();
+    void elaborate(bool clicked);
+    void elaborationEnded();
 
     void on_treeView_clicked(const QModelIndex &index);
     void dragEnterEvent(QDragEnterEvent *e);

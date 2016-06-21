@@ -15,13 +15,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    editview.cpp
+    editview.cpp \
+    consoleoutput.cpp
 
 HEADERS  += mainwindow.h \
-    editview.h
+    editview.h \
+    consoleoutput.h
 
 FORMS    += mainwindow.ui \
-    editview.ui
+    editview.ui \
+    consoleoutput.ui
 
 RESOURCES += resources.qrc
 
