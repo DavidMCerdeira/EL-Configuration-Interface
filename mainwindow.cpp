@@ -101,7 +101,7 @@ void MainWindow::elaborate(bool clicked)
 }
 
 void MainWindow::helpInfo(){  
-    QMessageBox::information(this,"Help","NÃO QUERO SABER! ISSO É PROBLEMA TEU!");
+    QMessageBox::information(this,"Help","Please close this window.");
 }
 
 void MainWindow::elaborationEnded(int f)
@@ -112,13 +112,13 @@ void MainWindow::elaborationEnded(int f)
 
 void MainWindow::createActions()
 {
-    loadAct = new QAction(tr("&Load"), this);
-    loadAct->setShortcuts(QKeySequence::New);
+    loadAct = new QAction(tr("&Load Project"), this);
+    loadAct->setShortcuts(QKeySequence::Open);
     loadAct->setStatusTip(tr("Load EL project directory."));
     connect(loadAct, &QAction::triggered, this, &MainWindow::loadProject);
 
-    helpAct = new QAction(tr("&More..."), this);
-    helpAct->setShortcuts(QKeySequence::New);
+    helpAct = new QAction(tr("&About"), this);
+    helpAct->setShortcuts(QKeySequence::HelpContents);
     helpAct->setStatusTip(tr("Load EL project directory."));
     connect(helpAct, &QAction::triggered, this, &MainWindow::helpInfo);
 }
@@ -135,29 +135,17 @@ void MainWindow::createMenus()
 
 void MainWindow::initDirectories()
 {
-    /*
-    QDirModel *model
-    model = new QDirModel(this);// Create and populate our model
-    model->setReadOnly(true);// Disable modifying file system
-    // Tie TreeView with DirModel
-    // QTreeView::setModel(QAbstractItemModel * model)
-    // Reimplemented from QAbstractItemView::setModel().
-    ui->treeView->setModel(model);
-    //ui->treeView->setGeometry(0,0,50,100);*/
-
-
-
     // Creates our new model and populate
-    QString mPath = "C:/Users/Miguel/Desktop/";
     dirModel = new QFileSystemModel(this);
 
     // Set filter
     //dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
     dirModel->setNameFilters(QStringList("*.xml"));
     dirModel->setNameFilterDisables(false); //not gray
+    dirModel->setReadOnly(true);
 
     // QFileSystemModel requires root path
-    dirModel->setRootPath(mPath);
+    dirModel->setRootPath("");
 
     // Attach the model to the view
     ui->treeView->setModel(dirModel);
@@ -191,7 +179,6 @@ void MainWindow::dropEvent(QDropEvent *e)
 {
     //foreach (const QUrl &url, e->mimeData()->urls())
     openProject(e->mimeData()->urls().first().toLocalFile());
-
 }
 
 MainWindow::~MainWindow()

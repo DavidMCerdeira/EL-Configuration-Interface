@@ -13,13 +13,13 @@ ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
     ui(new Ui::ConsoleOutput)
 {
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     runnable = "runElaborator.bat";
 #else
     runnable = "runElaborator.sh";
 #endif
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     lastPath = "C:\\";
 #else
     lastPath = "/home";
