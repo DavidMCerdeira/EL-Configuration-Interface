@@ -96,7 +96,7 @@ void MainWindow::elaborate(bool clicked)
     //qDebug() << "Here";
     ui->elaborateButton->setEnabled(false);
     consoleOutput = new ConsoleOutput(basePath);
-    connect(consoleOutput, SIGNAL(accepted()), this, SLOT(elaborationEnded()));
+    connect(consoleOutput, SIGNAL(finished(int)), this, SLOT(elaborationEnded(int)));
     consoleOutput->show();
 }
 
@@ -104,7 +104,7 @@ void MainWindow::helpInfo(){
     QMessageBox::information(this,"Help","NÃO QUERO SABER! ISSO É PROBLEMA TEU!");
 }
 
-void MainWindow::elaborationEnded()
+void MainWindow::elaborationEnded(int f)
 {
     delete consoleOutput;
     ui->elaborateButton->setEnabled(true);

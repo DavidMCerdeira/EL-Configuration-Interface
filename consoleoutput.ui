@@ -39,6 +39,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="chooseDestDirButton">
+       <property name="text">
+        <string>Copy Generated Files to...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="okButton">
        <property name="text">
         <string>Ok</string>
@@ -47,19 +54,6 @@
         <bool>true</bool>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </item>
@@ -76,8 +70,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>230</x>
-     <y>284</y>
+     <x>332</x>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>309</x>

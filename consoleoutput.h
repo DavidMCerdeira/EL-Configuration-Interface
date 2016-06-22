@@ -21,6 +21,10 @@ public:
 private slots:
     void elaborateOutputHandler();
     void onExit(int err);
+    void copySrcs(bool dummy);
+
+signals:
+    void close();
 
 private:
     Ui::ConsoleOutput *ui;
@@ -33,8 +37,7 @@ private:
     void elaborate();
 
     QProcess *process;
-
-
+    QString lastPath;
 };
 
 #endif // CONSOLEOUTPUT_H

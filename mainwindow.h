@@ -47,7 +47,7 @@ private slots:
     void loadProject();
     void helpInfo();
     void elaborate(bool clicked);
-    void elaborationEnded();
+    void elaborationEnded(int f);
 
     void on_treeView_clicked(const QModelIndex &index);
     void dragEnterEvent(QDragEnterEvent *e);
