@@ -215,7 +215,6 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
     int i=0;
     int min=0;
     bool flag_avoid_value=false;
-    QComboBox *combo_el;
 
     while (!child.isNull())
     {
@@ -260,25 +259,6 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                             qDebug("    "+subsubchildNode.toElement().firstChild().nodeValue().toLatin1());
                             if(childNode.toElement().attributeNode("type").value().compare("int")==0)
                             {
-                                QDoubleSpinBox *spinItem = new QDoubleSpinBox();
-
-                                if(i==0){
-                                    min=subsubchildNode.toElement().firstChild().nodeValue().toInt();
-                                    i++;
-                                }
-                                else{
-                                    spinItem->setMaximum(subsubchildNode.toElement().firstChild().nodeValue().toInt());
-                                    spinItem->setMinimum(min);
-                                    i=0;
-                                }
-
-                                if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                            spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
-
-                                ui->tableWidget->setCellWidget(row,2,spinItem);
-                            }
-                            else if(childNode.toElement().attributeNode("type").value().compare("float")==0)
-                            {
                                 QSpinBox *spinItem = new QSpinBox();
 
                                 if(i==0){
@@ -291,8 +271,30 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                                     i=0;
                                 }
 
-                                if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                            spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
+                                qDebug() << "VALi: " << subchildNode.toElement().nextSibling().firstChildElement().text().toInt();
+                                if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
+                                            spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toInt());
+
+                                ui->tableWidget->setCellWidget(row,2,spinItem);
+                            }
+                            else if(childNode.toElement().attributeNode("type").value().compare("float")==0)
+                            {
+                                QDoubleSpinBox *spinItem = new QDoubleSpinBox();
+
+                                if(i==0){
+                                    min=subsubchildNode.toElement().firstChild().nodeValue().toInt();
+                                    i++;
+                                }
+                                else{
+                                    spinItem->setMaximum(subsubchildNode.toElement().firstChild().nodeValue().toInt());
+                                    spinItem->setMinimum(min);
+                                    i=0;
+                                }
+
+                                qDebug() << "VALf: " << subchildNode.toElement().nextSibling().firstChildElement().text().toFloat();
+
+                                if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
+                                            spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toFloat());
 
                                 ui->tableWidget->setCellWidget(row,2,spinItem);
                             }
@@ -309,8 +311,10 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                         combo->addItems(list_el);
                         ui->tableWidget->setCellWidget(row,2,combo);
 
-                        if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                combo_el->setCurrentIndex(combo_el->findText(subsubchildNode.toElement().firstChild().nodeValue()));
+                        qDebug() << "VALe: " << subchildNode.toElement().nextSibling().firstChildElement().text();
+
+                        if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
+                                combo->setCurrentIndex(combo->findText(subchildNode.toElement().nextSibling().firstChildElement().text()));
 
                         flag_avoid_value=true;
                     }
@@ -325,7 +329,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
 
                             list_not_restrict.append(row);
 
-                            qDebug() << subsubchildNode.toElement().firstChild().nodeValue();
+                            qDebug() << "VALif: " << subsubchildNode.toElement().firstChild().firstChild().nodeValue();
 
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
                                     spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
@@ -341,6 +345,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
 
                             list_not_restrict.append(row);
 
+                            qDebug() << "VALf: " << subsubchildNode.toElement().firstChild().nodeValue();
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
                                     spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
 
@@ -353,6 +358,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                             combo->addItem("true");
                             combo->addItem("false");
 
+                            qDebug() << "VAL: " << subsubchildNode.toElement().firstChild().nodeValue();
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
                                     combo->setCurrentIndex(combo->findText(subsubchildNode.toElement().firstChild().nodeValue()));
 
@@ -364,7 +370,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                             text->setText(subsubchildNode.toElement().firstChild().nodeValue());
                             ui->tableWidget->setCellWidget(row,2,text);
 
-                            qDebug() << subsubchildNode.toElement().firstChild().nodeValue();
+                            qDebug() << "VAL: " << subsubchildNode.toElement().firstChild().nodeValue();
                         }
                     }
                     else
