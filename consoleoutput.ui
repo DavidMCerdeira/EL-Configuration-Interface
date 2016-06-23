@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>257</height>
+    <width>478</width>
+    <height>342</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,6 +60,22 @@
        <property name="text">
         <string>Copy Generated Files to...</string>
        </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="showGeneratedButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Show Generated Files</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -71,6 +87,9 @@
         <string>Ok</string>
        </property>
        <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
         <bool>true</bool>
        </property>
       </widget>

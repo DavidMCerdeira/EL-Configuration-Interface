@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QProcess>
 
+#define FINAL_FILES_SUFIX "EL/FinalFiles"
+
 namespace Ui {
 class ConsoleOutput;
 }
@@ -23,12 +25,15 @@ private slots:
     void onExit(int err);
     void copySrcs(bool dummy);
 
+    void on_showGeneratedButton_clicked();
+
 signals:
     void close();
 
 private:
     Ui::ConsoleOutput *ui;
     const QString elaborationPath;
+    const QString finalFilesPath;
     void showError(QString str);
     void showOutput(QString str);
     void showErrorList(QStringList strList);

@@ -3,12 +3,14 @@
 #include <QDebug>
 #include <QSysInfo>
 #include <QFileDialog>
+#include <QDesktopServices>
 
 #define WIND_WIDTH 640
 #define WIND_HEIGHT 480
 
 ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
     elaborationPath(path),
+    finalFilesPath(path + FINAL_FILES_SUFIX),
     QDialog(parent),
     ui(new Ui::ConsoleOutput)
 {
@@ -117,14 +119,17 @@ void ConsoleOutput::elaborateOutputHandler()
 
 void ConsoleOutput::onExit(int err)
 {
-    QString errorMsg = "Elaborator ended execution with code: " + QString::number(err);
+    elaborateOutputHandler(); //show any missing output
+
+    QString msg = "Elaborator ended execution with code: " + QString::number(err);
 
     ui->okButton->setEnabled(true);
     if(err == 0)
-        showOutput(errorMsg);
+        showOutput(msg);
     else {
-        showError(errorMsg); return;
+        showError(msg); return;
     }
+    ui->showGeneratedButton->setEnabled(true);
     ui->chooseDestDirButton->setEnabled(true);
 }
 
@@ -156,7 +161,6 @@ static void copyRecursively(const QString &sourceFolder,
         QString destName = destFolder + "/" + files[i];
         copyRecursively(srcName, destName);
     }
-
 }
 
 void ConsoleOutput::copySrcs(bool dummy)
@@ -170,4 +174,9 @@ void ConsoleOutput::copySrcs(bool dummy)
     qDebug() << "Org: " + elaborationPath + "EL/FinalFiles";
     qDebug() << "Dest: " + dir;
     copyRecursively(elaborationPath + "EL/FinalFiles", dir+"/");
+}
+
+void ConsoleOutput::on_showGeneratedButton_clicked()
+{
+    QDesktopServices::openUrl(QUrl(elaborationPath + "EL/FinalFiles"));
 }
