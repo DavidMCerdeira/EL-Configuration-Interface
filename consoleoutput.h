@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QProcess>
-#include <QErrorMessage>
 
 
 #define FINAL_FILES_SUFIX "EL/FinalFiles"
@@ -45,7 +44,6 @@ private:
     QProcess *process;
     QString lastPath;
     QString runnable;
-    QErrorMessage *errorMessage;
     bool checkFileExist(QString filename);
 };
 

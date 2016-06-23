@@ -15,7 +15,6 @@ ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
     ui(new Ui::ConsoleOutput)
 {
     process = nullptr;
-    errorMessage = nullptr;
 #ifdef Q_OS_WIN
     runnable = "runElaborator.bat";
 #else
@@ -42,12 +41,6 @@ ConsoleOutput::~ConsoleOutput()
         process->close();
         delete process;
     }
-    if(errorMessage != nullptr)
-    {
-        errorMessage->close();
-        delete errorMessage;
-    }
-
     delete ui;
 }
 
@@ -56,7 +49,9 @@ bool ConsoleOutput::checkRunnable()
     if(!checkFileExist(elaborationPath + runnable))
     {
         showError("Elaborator run script not found...");
+        return false;
     }
+    return true; //file exists
 }
 
 bool ConsoleOutput::checkFileExist(QString filename)

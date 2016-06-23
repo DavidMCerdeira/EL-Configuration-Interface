@@ -147,7 +147,7 @@ void MainWindow::helpInfo(){
 
 void MainWindow::elaborationEnded(int f)
 {
-    delete consoleOutput;
+    //delete consoleOutput; //TODO, This causes problems on some machines, why?
     ui->elaborateButton->setEnabled(true);
 }
 
