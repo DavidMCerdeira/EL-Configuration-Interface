@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QProcess>
+#include <QErrorMessage>
+
 
 #define FINAL_FILES_SUFIX "EL/FinalFiles"
 
@@ -17,8 +19,6 @@ class ConsoleOutput : public QDialog
 public:
     explicit ConsoleOutput(QString path, QWidget *parent = 0);
     ~ConsoleOutput();
-
-    QString runnable;
 
 private slots:
     void elaborateOutputHandler();
@@ -40,9 +40,13 @@ private:
     void showOutputList(QStringList strList);
     static QStringList getLinesFromQByteArray(QByteArray qba);
     void elaborate();
+    bool checkRunnable();
 
     QProcess *process;
     QString lastPath;
+    QString runnable;
+    QErrorMessage *errorMessage;
+    bool checkFileExist(QString filename);
 };
 
 #endif // CONSOLEOUTPUT_H

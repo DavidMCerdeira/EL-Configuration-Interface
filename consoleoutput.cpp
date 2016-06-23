@@ -14,7 +14,8 @@ ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConsoleOutput)
 {
-
+    process = nullptr;
+    errorMessage = nullptr;
 #ifdef Q_OS_WIN
     runnable = "runElaborator.bat";
 #else
@@ -30,12 +31,43 @@ ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
     ui->setupUi(this);
     connect(ui->chooseDestDirButton, SIGNAL(clicked(bool)), this, SLOT(copySrcs(bool)));
     resize(WIND_WIDTH, WIND_HEIGHT);
-    elaborate();
+
+        elaborate();
 }
 
 ConsoleOutput::~ConsoleOutput()
 {
+    if(process != nullptr)
+    {
+        process->close();
+        delete process;
+    }
+    if(errorMessage != nullptr)
+    {
+        errorMessage->close();
+        delete errorMessage;
+    }
+
     delete ui;
+}
+
+bool ConsoleOutput::checkRunnable()
+{
+    if(!checkFileExist(elaborationPath + runnable))
+    {
+        showError("Elaborator run script not found...");
+    }
+}
+
+bool ConsoleOutput::checkFileExist(QString filename)
+{
+    QFileInfo check_file(filename);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (check_file.exists() && check_file.isFile()) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void ConsoleOutput::showError(QString str)
@@ -69,7 +101,9 @@ void ConsoleOutput::showOutputList(QStringList strList)
 
 void ConsoleOutput::elaborate()
 {
-    //QString commandElaborate =  "java -jar ./Elaborator.jar";
+    if(!checkRunnable()){
+        return;
+    }
     QString command = elaborationPath + runnable;
 
     process = new QProcess();
