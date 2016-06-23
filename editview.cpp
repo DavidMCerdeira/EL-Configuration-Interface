@@ -38,7 +38,7 @@ EditView::EditView(QWidget *parent) :
     setWindowIcon(QIcon(":/icon.ico"));
 }
 
-void EditView::writeXml(QString fileName)
+void EditView::writeXml(QString fileName, READTYPE RT)
 {
     QDomDocument doc;
     int row=0;
@@ -161,14 +161,30 @@ void EditView::writeXml(QString fileName)
     file.close();
 }
 
-void EditView::readXml(const QString &fileName)
+void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,const QString &SpecificElabPath, READTYPE RT)
 {
     QDomDocument doc;
     int row = 0;
 
     fileDirectory = fileName;
+    this->SpecificElabPath = SpecificElabPath;
+    this->SpecificXMLFile = SpecificXMLFile;
 
-    QFile file(fileName); //filename
+    state = RT;
+
+    ui->tableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Type"));
+    ui->tableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Default"));
+    ui->tableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("Value"));
+
+    QFile file(fileName);
+
+    if(state == READTYPE::GENERAL){
+        file.setFileName(fileName); //filename
+    }
+    else {
+        file.setFileName(SpecificXMLFile); //filename
+    }
+
     if (!file.open(QIODevice::ReadOnly | QFile::Text)){
         std::cerr<< "ERROR: file openning"<< std::endl;
         return;
@@ -183,6 +199,7 @@ void EditView::readXml(const QString &fileName)
     file.close();
 
     QDomElement docEl = doc.documentElement();
+    componentType = docEl.attributeNode("type").value().toLatin1();
 
     //Component Name
     qDebug(docEl.tagName().toLatin1() + ":" + docEl.attributeNode("type").value().toLatin1());
@@ -194,19 +211,26 @@ void EditView::readXml(const QString &fileName)
     QStringList list_rest, list_el;
     QDomNode child = docEl.firstChild();
 
+
     int i=0;
     int min=0;
     bool flag_avoid_value=false;
+    QComboBox *combo_el;
 
     while (!child.isNull())
     {
         //Elaboration element : Default : Value
         qDebug(" "+child.toElement().tagName().toLatin1() + ":" + child.toElement().attributeNode("default").value().toLatin1() + ":" + child.toElement().firstChild().nodeValue().toLatin1());
-        ui->labelDefElab->setText(child.toElement().attributeNode("default").value());
-        ui->labelDefElab->QWidget::adjustSize();
-        ui->lineValueElabEdit->setText(child.toElement().firstChild().nodeValue());
-
-        child = child.nextSibling();
+        if(state == READTYPE::GENERAL){
+            ui->labelDefElab->setText(child.toElement().attributeNode("default").value());
+            ui->labelDefElab->QWidget::adjustSize();
+            ui->lineValueElabEdit->setText(child.toElement().firstChild().nodeValue());
+            ui->lineValueElabEdit->setDisabled(0);
+            child = child.nextSibling();
+        } else {
+           ui->labelDefElab->setText("");
+           ui->lineValueElabEdit->setDisabled(1);
+        }
 
         QDomNode childNode = child.toElement().firstChild();
 
@@ -214,7 +238,7 @@ void EditView::readXml(const QString &fileName)
         {
             //childs ID , name, doc2, doc3 and node value respectively
             if(childNode.toElement().nodeName() == "property"){
-                qDebug("  "+childNode.toElement().attributeNode("name").value().toLatin1());
+                qDebug("*** "+childNode.toElement().attributeNode("name").value().toLatin1());
 
                 ui->tableWidget->setVerticalHeaderItem(row, new QTableWidgetItem(childNode.toElement().attributeNode("name").value()));
                 ui->tableWidget->setItem(row,0,new QTableWidgetItem(childNode.toElement().attributeNode("type").value()));
@@ -248,6 +272,9 @@ void EditView::readXml(const QString &fileName)
                                     i=0;
                                 }
 
+                                if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                            spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
+
                                 ui->tableWidget->setCellWidget(row,2,spinItem);
                             }
                             else if(childNode.toElement().attributeNode("type").value().compare("float")==0)
@@ -264,6 +291,9 @@ void EditView::readXml(const QString &fileName)
                                     i=0;
                                 }
 
+                                if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                            spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
+
                                 ui->tableWidget->setCellWidget(row,2,spinItem);
                             }
                             subsubchildNode = subsubchildNode.nextSibling();
@@ -278,6 +308,10 @@ void EditView::readXml(const QString &fileName)
                         list_el << subchildNode.toElement().firstChild().nodeValue();
                         combo->addItems(list_el);
                         ui->tableWidget->setCellWidget(row,2,combo);
+
+                        if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                combo_el->setCurrentIndex(combo_el->findText(subsubchildNode.toElement().firstChild().nodeValue()));
+
                         flag_avoid_value=true;
                     }
                     else if(!flag_avoid_value)
@@ -286,31 +320,29 @@ void EditView::readXml(const QString &fileName)
                         {
                             QDoubleSpinBox *spinItem = new QDoubleSpinBox();
 
-                            if(i==0){
-                                min=subsubchildNode.toElement().firstChild().nodeValue().toInt();
-                                i++;
-                            }
-                            else{
-                                spinItem->setMaximum(subsubchildNode.toElement().firstChild().nodeValue().toInt());
-                                spinItem->setMinimum(min);
-                                i=0;
-                            }
+                            spinItem->setMaximum(9223372036854775807);
+                            spinItem->setMinimum(-9223372036854775807);
+
+                            list_not_restrict.append(row);
+
+                            qDebug() << subsubchildNode.toElement().firstChild().nodeValue();
+
+                            if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                    spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
 
                             ui->tableWidget->setCellWidget(row,2,spinItem);
                         }
                         else if(childNode.toElement().attributeNode("type").value().compare("float")==0)
                         {
-                            QSpinBox *spinItem = new QSpinBox();
+                            QDoubleSpinBox *spinItem = new QDoubleSpinBox();
 
-                            if(i==0){
-                                min=subsubchildNode.toElement().firstChild().nodeValue().toInt();
-                                i++;
-                            }
-                            else{
-                                spinItem->setMaximum(subsubchildNode.toElement().firstChild().nodeValue().toInt());
-                                spinItem->setMinimum(min);
-                                i=0;
-                            }
+                            spinItem->setMaximum(9223372036854775807);
+                            spinItem->setMinimum(-9223372036854775807);
+
+                            list_not_restrict.append(row);
+
+                            if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                    spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
 
                             ui->tableWidget->setCellWidget(row,2,spinItem);
                         }
@@ -320,12 +352,19 @@ void EditView::readXml(const QString &fileName)
                             qDebug("     "+subchildNode.toElement().firstChild().nodeValue().toLatin1());
                             combo->addItem("true");
                             combo->addItem("false");
+
+                            if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
+                                    combo->setCurrentIndex(combo->findText(subsubchildNode.toElement().firstChild().nodeValue()));
+
                             ui->tableWidget->setCellWidget(row,2,combo);
                         }
-                        else
+                        else if(childNode.toElement().attributeNode("type").value().compare("string")==0)
                         {
                             QTextEdit *text = new QTextEdit;
+                            text->setText(subsubchildNode.toElement().firstChild().nodeValue());
                             ui->tableWidget->setCellWidget(row,2,text);
+
+                            qDebug() << subsubchildNode.toElement().firstChild().nodeValue();
                         }
                     }
                     else
@@ -354,5 +393,61 @@ EditView::~EditView()
 
 void EditView::on_pushButton_clicked()
 {
-    writeXml(fileDirectory);
+    if(state == READTYPE::GENERAL)
+        writeXml(fileDirectory,READTYPE::GENERAL);
+    else
+        writeXml(SpecificXMLFile,READTYPE::SPECIFIC);
+}
+
+
+
+void EditView::on_lineValueElabEdit_textChanged(const QString &arg1)
+{
+    SpecificXMLFile = SpecificElabPath + componentType + "/" + arg1 + "/" + arg1 + ".xml";
+    QFile file(SpecificXMLFile);
+
+    if (!file.open(QIODevice::ReadOnly | QFile::Text)){
+        std::cerr<< "ERROR: file openning"<< std::endl;
+        ui->pushButton_2->setDisabled(1);
+    }else{
+        file.close();
+        ui->pushButton_2->setDisabled(0);
+        ui->pushButton_2->setText("Open Specific XML");
+    }
+}
+
+void EditView::on_pushButton_2_clicked()
+{
+    QFile file(SpecificXMLFile);
+
+    if(state == READTYPE::SPECIFIC){
+        //ui->tableWidget->clearContents();
+        ui->tableWidget->setRowCount(1);
+
+        /*for ( int i = 0; i <= ui->tableWidget->rowCount(); ++i )
+        {
+            ui->tableWidget->removeRow(i);
+        }*/
+
+
+        readXml(fileDirectory,SpecificXMLFile,SpecificElabPath,READTYPE::GENERAL);
+        ui->pushButton_2->setText("Open Specific XML");
+    }
+    else {
+        qDebug() << "-->" + SpecificXMLFile;
+        qDebug() << "suck it";
+        //ui->tableWidget->clearContents();
+        //ui->tableWidget->clear();
+        ui->tableWidget->setRowCount(1);
+
+        /*for ( int i = 0; i <= ui->tableWidget->rowCount(); ++i )
+        {
+            ui->tableWidget->removeRow(i);
+        }*/
+
+
+
+        readXml(fileDirectory,SpecificXMLFile,SpecificElabPath,READTYPE::SPECIFIC);
+        ui->pushButton_2->setText("Open General XML");
+    }
 }

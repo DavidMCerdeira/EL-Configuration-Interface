@@ -189,7 +189,7 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index)
 
     if( file.exists() && file.isFile()){
         editView = new EditView;
-        editView->readXml(mPath);
+        editView->readXml(mPath,"",SpecificElabPath,EditView::READTYPE::GENERAL);
         editView->show();
     }
 }

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>490</width>
-    <height>329</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -140,15 +140,19 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Open Specific XML</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
-     <zorder>labelCompName</zorder>
-     <zorder>label</zorder>
-     <zorder>label_3</zorder>
-     <zorder>label_2</zorder>
-     <zorder>labelDefElab</zorder>
-     <zorder>lineValueElabEdit</zorder>
     </widget>
    </item>
    <item>
