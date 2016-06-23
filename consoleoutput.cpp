@@ -119,10 +119,13 @@ void ConsoleOutput::onExit(int err)
 {
     QString errorMsg = "Elaborator ended execution with code: " + QString::number(err);
 
+    ui->okButton->setEnabled(true);
     if(err == 0)
         showOutput(errorMsg);
-    else
-        showError(errorMsg);
+    else {
+        showError(errorMsg); return;
+    }
+    ui->chooseDestDirButton->setEnabled(true);
 }
 
 //https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189

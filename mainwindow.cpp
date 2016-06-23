@@ -15,6 +15,7 @@
 #define WIND_WIDTH 450
 #define WIND_HEIGHT 120
 #define WIND_HEIGHT2 500
+#define LAST_FILE "lastproject.rs"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,11 +32,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setAcceptDrops(true); //Drag & Drop
 
-
     setWindowTitle(tr("ELCI (EL Configuration Interface)"));
     setMinimumSize(300, WIND_HEIGHT);
     resize(WIND_WIDTH, WIND_HEIGHT);
     setWindowIcon(QIcon(":/icon.ico"));
+    loadDirectory();
 }
 
 void MainWindow::loadProject(){
@@ -89,7 +90,35 @@ void MainWindow::openProject(const QString &dir){
     resize(WIND_WIDTH, WIND_HEIGHT2);
     statusBar()->showMessage(message);
     //ui->treeView->setCurrentIndex(dirModel->index(directoryRoot));
+    saveDirectory(dir);
 }
+
+void MainWindow::saveDirectory(const QString &dir)
+{
+    QFile outputFile(LAST_FILE);
+    outputFile.open(QIODevice::WriteOnly);
+
+    if(outputFile.isOpen()){
+        QTextStream outStream(&outputFile);
+        outStream << dir;
+        outputFile.close();
+    }
+}
+
+void MainWindow::loadDirectory()
+{
+    QFile inputFile(LAST_FILE);
+    if (inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       lastfile = in.readLine();
+       inputFile.close();
+       if (QDir(lastfile).exists())
+           openProject(lastfile);
+    }
+}
+
+
 
 void MainWindow::elaborate(bool clicked)
 {

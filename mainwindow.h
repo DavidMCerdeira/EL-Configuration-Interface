@@ -32,6 +32,8 @@ private:
     void readXml(const QString &fileName);
     void initDirectories();
     void openProject(const QString &dir);
+    void saveDirectory(const QString &dir);
+    void loadDirectory();
 ////////////////////////////
     QMenu *fileMenu;
     QMenu *helpMenu;
@@ -43,6 +45,7 @@ private:
 
     EditView *editView;
     ConsoleOutput *consoleOutput;
+    QString lastfile;
 private slots:
     void loadProject();
     void helpInfo();
