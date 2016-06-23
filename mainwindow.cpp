@@ -58,7 +58,6 @@ void MainWindow::openProject(const QString &dir){
         QString message = tr("Project does not contain the directory /EL/SpecificElaborations/ or /EL/Configs/");
         ui->treeView->setVisible(false);
         ui->elaborateButton->setHidden(true);
-        ui->label->setVisible(true);
         statusBar()->showMessage(message);
         return;
     }
@@ -70,7 +69,6 @@ void MainWindow::openProject(const QString &dir){
     if(!directories.hasNext()){
         ui->treeView->setVisible(false);
         ui->elaborateButton->setHidden(true);
-        ui->label->setVisible(true);
         QString message = tr("Project has no folder inside /EL/Configs/");
         statusBar()->showMessage(message);
         return;
@@ -85,7 +83,6 @@ void MainWindow::openProject(const QString &dir){
 
     ui->treeView->setVisible(true);
     ui->elaborateButton->setHidden(false);
-    ui->label->setVisible(false);
     QString message = tr("Project Loaded Successfully!");
     resize(WIND_WIDTH, WIND_HEIGHT2);
     statusBar()->showMessage(message);
