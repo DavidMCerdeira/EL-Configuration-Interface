@@ -142,7 +142,7 @@ void MainWindow::elaborate(bool clicked)
 }
 
 void MainWindow::helpInfo(){  
-    QMessageBox::information(this,"Help","Please close this window.");
+    QMessageBox::information(this,"Help","Engineered by the Stack IoT team.");
 }
 
 void MainWindow::elaborationEnded(int f)
