@@ -6,8 +6,7 @@
 #include <QFileSystemModel>
 #include <editview.h>
 #include "consoleoutput.h"
-
-
+#include <QTreeView>
 
 namespace Ui {
 class MainWindow;
@@ -30,8 +29,8 @@ private:
     void createActions();
     void createMenus();
     void readXml(const QString &fileName);
-    void initDirectories();
     void openProject(const QString &dir);
+    void initDirectories(QFileSystemModel **dirModel, QStringList filter, QTreeView *treeView);
 ////////////////////////////
     QMenu *fileMenu;
     QMenu *helpMenu;
@@ -39,20 +38,23 @@ private:
     QAction *loadAct;
     QAction *helpAct;
 
-    QFileSystemModel *dirModel;
+    QFileSystemModel *dirModel_confs;
+    QFileSystemModel *dirModel_elabs;
 
     EditView *editView;
     ConsoleOutput *consoleOutput;
+
 private slots:
     void loadProject();
     void helpInfo();
     void elaborate(bool clicked);
     void elaborationEnded(int f);
 
-    void on_treeView_clicked(const QModelIndex &index);
     void dragEnterEvent(QDragEnterEvent *e);
     void dropEvent(QDropEvent *e);
 
+    void on_treeView_configs_clicked(const QModelIndex &index);
+    void on_treeView_elaborations_clicked(const QModelIndex &index);
 };
 
 #endif // MAINWINDOW_H

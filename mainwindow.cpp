@@ -12,6 +12,8 @@
 #include <QMimeData>
 #include <QSplitter>
 #include <QDebug>
+#include <QDesktopServices>
+
 #define WIND_WIDTH 450
 #define WIND_HEIGHT 120
 #define WIND_HEIGHT2 500
@@ -24,13 +26,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     createActions();
     createMenus();
-    initDirectories();
+
+    initDirectories(&dirModel_confs, QStringList("*.xml"), ui->treeView_configs);
+    initDirectories(&dirModel_elabs, QStringList("*.java"), ui->treeView_elaborations);
 
     connect(ui->elaborateButton, SIGNAL(clicked(bool)), this, SLOT(elaborate(bool)));
+
     ui->elaborateButton->setHidden(true);
+    ui->tabWidget->setHidden(true);
+    ui->treeView_configs->setVisible(true);
 
-    setAcceptDrops(true); //Drag & Drop
-
+    setAcceptDrops( true); //Drag & Drop
 
     setWindowTitle(tr("ELCI (EL Configuration Interface)"));
     setMinimumSize(300, WIND_HEIGHT);
@@ -55,7 +61,7 @@ void MainWindow::openProject(const QString &dir){
     //======================================= Test Subdirectories
     if(!QDir(SpecificElabPath).exists() || !QDir(ConfigPath).exists()){
         QString message = tr("Project does not contain the directory /EL/SpecificElaborations/ or /EL/Configs/");
-        ui->treeView->setVisible(false);
+        ui->tabWidget->setVisible(false);
         ui->elaborateButton->setHidden(true);
         ui->label->setVisible(true);
         statusBar()->showMessage(message);
@@ -67,7 +73,7 @@ void MainWindow::openProject(const QString &dir){
     QString subpath;
 
     if(!directories.hasNext()){
-        ui->treeView->setVisible(false);
+        ui->tabWidget->setVisible(false);
         ui->elaborateButton->setHidden(true);
         ui->label->setVisible(true);
         QString message = tr("Project has no folder inside /EL/Configs/");
@@ -77,12 +83,17 @@ void MainWindow::openProject(const QString &dir){
 
     //======================================= Check if it contains >1 TopLevel
     subpath = directories.next(); //next folder
-    if(directories.hasNext())
-        ui->treeView->setRootIndex(dirModel->index(ConfigPath));//>1 TopLevel (error?)
+    if(directories.hasNext()){
+        ui->treeView_configs->setRootIndex(dirModel_confs->index(ConfigPath));//>1 TopLevel (error?)
+    }
     else
-        ui->treeView->setRootIndex(dirModel->index(subpath));//Has 1 TopLevel (go inside)
+        ui->treeView_configs->setRootIndex(dirModel_confs->index(subpath));//Has 1 TopLevel (go inside)
 
-    ui->treeView->setVisible(true);
+    ui->treeView_elaborations->setRootIndex(dirModel_elabs->index(SpecificElabPath));
+
+    ui->tabWidget->setVisible(true);
+    ui->treeView_elaborations->setVisible(true);
+
     ui->elaborateButton->setHidden(false);
     ui->label->setVisible(false);
     QString message = tr("Project Loaded Successfully!");
@@ -133,39 +144,26 @@ void MainWindow::createMenus()
     helpMenu->addAction(helpAct);
 }
 
-void MainWindow::initDirectories()
-{
-    // Creates our new model and populate
-    dirModel = new QFileSystemModel(this);
+void MainWindow::initDirectories(QFileSystemModel **dirModel, QStringList filter, QTreeView *treeView){
+    // Creates a new model and populate
+    (*dirModel) = new QFileSystemModel(this);
 
     // Set filter
     //dirModel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
-    dirModel->setNameFilters(QStringList("*.xml"));
-    dirModel->setNameFilterDisables(false); //not gray
-    dirModel->setReadOnly(true);
+    (*dirModel)->setNameFilters(filter);
+    (*dirModel)->setNameFilterDisables(false); //not gray
+    (*dirModel)->setReadOnly(true);
 
     // QFileSystemModel requires root path
-    dirModel->setRootPath("");
+    (*dirModel)->setRootPath("");
 
     // Attach the model to the view
-    ui->treeView->setModel(dirModel);
+    treeView->setModel(*dirModel);
 
-    ui->treeView->setColumnHidden(1,true);
-    ui->treeView->setColumnHidden(2,true);
-    ui->treeView->setColumnHidden(3,true);
-    ui->treeView->setVisible(false);
-}
-
-void MainWindow::on_treeView_clicked(const QModelIndex &index)
-{
-    QString mPath = dirModel->fileInfo(index).absoluteFilePath();
-    QFileInfo file(mPath);
-
-    if( file.exists() && file.isFile()){
-        editView = new EditView;
-        editView->readXml(mPath);
-        editView->show();
-    }
+    treeView->setColumnHidden(1, true);
+    treeView->setColumnHidden(2, true);
+    treeView->setColumnHidden(3, true);
+    treeView->setVisible(false);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
@@ -184,4 +182,26 @@ void MainWindow::dropEvent(QDropEvent *e)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::on_treeView_configs_clicked(const QModelIndex &index)
+{
+    QString mPath = dirModel_confs->fileInfo(index).absoluteFilePath();
+    QFileInfo file(mPath);
+
+    if( file.exists() && file.isFile()){
+        editView = new EditView;
+        editView->readXml(mPath);
+        editView->show();
+    }
+}
+
+void MainWindow::on_treeView_elaborations_clicked(const QModelIndex &index)
+{
+    QString mPath = dirModel_elabs->fileInfo(index).absoluteFilePath();
+    QFileInfo file(mPath);
+
+    if( file.exists() && file.isFile()){
+        QDesktopServices::openUrl(QUrl(mPath));
+    }
 }
