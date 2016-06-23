@@ -36,6 +36,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tabWidget->setHidden(true);
     ui->treeView_configs->setVisible(true);
 
+    ui->openFolder->setEnabled(false);
+
     setAcceptDrops( true); //Drag & Drop
 
     setWindowTitle(tr("ELCI (EL Configuration Interface)"));
@@ -202,6 +204,23 @@ void MainWindow::on_treeView_elaborations_clicked(const QModelIndex &index)
     QFileInfo file(mPath);
 
     if( file.exists() && file.isFile()){
+        QDesktopServices::openUrl(QUrl(mPath));
+        ui->openFolder->setEnabled(false);
+    }
+    else {
+        curElabTree = index;
+        ui->openFolder->setEnabled(true);
+    }
+}
+
+void MainWindow::on_openFolder_clicked()
+{
+    QString mPath = dirModel_elabs->fileInfo(curElabTree).absoluteFilePath();
+    QFileInfo file(mPath);
+
+    if(!file.isFile()){
+        qDebug() << "OpenFolder:"<<mPath;
+
         QDesktopServices::openUrl(QUrl(mPath));
     }
 }

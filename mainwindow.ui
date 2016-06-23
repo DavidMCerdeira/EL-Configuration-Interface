@@ -38,6 +38,9 @@
       <property name="currentIndex">
        <number>1</number>
       </property>
+      <property name="elideMode">
+       <enum>Qt::ElideMiddle</enum>
+      </property>
       <widget class="QWidget" name="Configurations">
        <attribute name="title">
         <string>Configurations</string>
@@ -62,19 +65,47 @@
        <attribute name="title">
         <string>Elaborations</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QTreeView" name="treeView_elaborations">
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <attribute name="headerVisible">
-           <bool>false</bool>
-          </attribute>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QPushButton" name="openFolder">
+              <property name="text">
+               <string>Open Folder</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTreeView" name="treeView_elaborations">
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <attribute name="headerVisible">
+             <bool>false</bool>
+            </attribute>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

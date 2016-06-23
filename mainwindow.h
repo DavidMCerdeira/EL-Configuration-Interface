@@ -7,6 +7,7 @@
 #include <editview.h>
 #include "consoleoutput.h"
 #include <QTreeView>
+#include <QModelIndex>
 
 namespace Ui {
 class MainWindow;
@@ -44,6 +45,8 @@ private:
     EditView *editView;
     ConsoleOutput *consoleOutput;
 
+    QModelIndex curElabTree;
+
 private slots:
     void loadProject();
     void helpInfo();
@@ -55,6 +58,8 @@ private slots:
 
     void on_treeView_configs_clicked(const QModelIndex &index);
     void on_treeView_elaborations_clicked(const QModelIndex &index);
+
+    void on_openFolder_clicked();
 };
 
 #endif // MAINWINDOW_H
