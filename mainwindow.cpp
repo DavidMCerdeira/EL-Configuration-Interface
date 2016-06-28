@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->elaborateButton->setHidden(true);
     ui->tabWidget->setHidden(true);
     ui->treeView_configs->setVisible(true);
+    ui->treeView_configs->setExpandsOnDoubleClick(false);
 
     ui->openFolder->setEnabled(false);
 
@@ -97,7 +98,6 @@ void MainWindow::openProject(const QString &dir){
     ui->treeView_elaborations->setVisible(true);
 
     ui->elaborateButton->setHidden(false);
-    ui->label->setVisible(false);
     QString message = tr("Project Loaded Successfully!");
     resize(WIND_WIDTH, WIND_HEIGHT2);
     statusBar()->showMessage(message);
@@ -214,6 +214,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void expandChildren(const QModelIndex &index, QTreeView *view)
+{
+    if (!index.isValid()) return;
+    int childCount = index.model()->rowCount(index);
+    for (int i = 0; i < childCount; i++) {
+        const QModelIndex &child = index.child(i, 0);
+        expandChildren(child, view);
+    }
+    if (!view->isExpanded(index)) view->setExpanded(index,true);
+}
+
 void MainWindow::on_treeView_configs_clicked(const QModelIndex &index)
 {
     QString mPath = dirModel_confs->fileInfo(index).absoluteFilePath();
@@ -223,6 +234,10 @@ void MainWindow::on_treeView_configs_clicked(const QModelIndex &index)
         editView = new EditView;
         editView->readXml(mPath,"",SpecificElabPath,EditView::READTYPE::GENERAL);
         editView->show();
+    }
+    else if( file.exists() && file.isDir()){ //expand children
+        ui->treeView_configs->setExpanded(index, true);
+        expandChildren(index,ui->treeView_configs);
     }
 }
 
@@ -234,8 +249,7 @@ void MainWindow::on_treeView_elaborations_clicked(const QModelIndex &index)
     if( file.exists() && file.isFile()){
         QDesktopServices::openUrl(QUrl(mPath));
         ui->openFolder->setEnabled(false);
-    }
-    else {
+    } else {
         curElabTree = index;
         ui->openFolder->setEnabled(true);
     }
@@ -252,3 +266,5 @@ void MainWindow::on_openFolder_clicked()
         QDesktopServices::openUrl(QUrl(mPath));
     }
 }
+
+
