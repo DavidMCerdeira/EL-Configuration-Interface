@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QStandardItemModel>
+#include <QStringList>
 
 namespace Ui {
 class EditView;
@@ -15,8 +16,8 @@ class EditView : public QWidget
 public:
     typedef enum {GENERAL,SPECIFIC} READTYPE;
 
-    explicit EditView(QWidget *parent = 0);
-    void readXml(const QString &fileName, const QString &SpecificXMLFile,const QString & SpecificElabPath,READTYPE);
+    explicit EditView(const QString &fileName, QString &SpecificElabPath, QWidget *parent = 0);
+    void readXml(const QString &fileName, const QString &SpecificXMLFile, READTYPE RT);
     void writeXml(QString fileName,READTYPE);
     ~EditView();
 
@@ -25,9 +26,9 @@ public:
 private slots:
     void on_pushButton_clicked();
 
-    void on_lineValueElabEdit_textChanged(const QString &arg1);
+    void on_elabComboBox_currentIndexChanged(const QString &arg1);
 
-    void on_pushButton_2_clicked();
+    void on_openSpecificButton_clicked();
 
 private:
     Ui::EditView *ui;
@@ -41,6 +42,9 @@ private:
     QString SpecificXMLFile;
     READTYPE state;
 
+    QStringList searchElaborations();
+
+    void refreshSpecificButton(QString);
 };
 
 #endif // EDITVIEW_H

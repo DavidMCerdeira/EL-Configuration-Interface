@@ -33,8 +33,8 @@ signals:
 
 private:
     Ui::ConsoleOutput *ui;
-    const QString elaborationPath;
     const QString finalFilesPath;
+    const QString elaborationPath;
     void showError(QString str);
     void showOutput(QString str);
     void showErrorList(QStringList strList);

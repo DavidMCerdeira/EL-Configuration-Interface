@@ -227,12 +227,11 @@ void expandChildren(const QModelIndex &index, QTreeView *view)
 
 void MainWindow::on_treeView_configs_clicked(const QModelIndex &index)
 {
-    QString mPath = dirModel_confs->fileInfo(index).absoluteFilePath();
-    QFileInfo file(mPath);
+    QString configFile = dirModel_confs->fileInfo(index).absoluteFilePath();
+    QFileInfo file(configFile);
 
-    if( file.exists() && file.isFile()){
-        editView = new EditView;
-        editView->readXml(mPath,"",SpecificElabPath,EditView::READTYPE::GENERAL);
+    if(file.exists() && file.isFile()){
+        editView = new EditView(configFile, SpecificElabPath);
         editView->show();
     }
     else if( file.exists() && file.isDir()){ //expand children

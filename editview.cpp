@@ -10,18 +10,24 @@
 #include <QSpinBox>
 #include <QDebug>
 #include <QTextEdit>
+#include <QDirIterator>
 
-EditView::EditView(QWidget *parent) :
+EditView::EditView(const QString &fileName, QString &SpecificElabPath, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::EditView)
 {
     ui->setupUi(this);
 
+
+    fileDirectory = fileName;
+    this->SpecificElabPath = SpecificElabPath;
+    this->SpecificXMLFile = SpecificXMLFile;
+
     model = new QStandardItemModel;
     ui->label->QWidget::adjustSize();
     ui->label_2->QWidget::adjustSize();
     ui->label_3->QWidget::adjustSize();
-    ui->lineValueElabEdit->QWidget::adjustSize();
+    ui->elabComboBox->QWidget::adjustSize();
     ui->label_4->setAlignment(Qt::AlignCenter);
 
     ui->tableWidget->setColumnCount(3);
@@ -36,6 +42,8 @@ EditView::EditView(QWidget *parent) :
 
     resize(700, 500);
     setWindowIcon(QIcon(":/icon.ico"));
+
+    readXml(fileName, "", GENERAL);
 }
 
 void EditView::writeXml(QString fileName, READTYPE RT)
@@ -49,7 +57,7 @@ void EditView::writeXml(QString fileName, READTYPE RT)
 
     QDomElement el = doc.createElement("elaboration");
     el.setAttribute("default",ui->labelDefElab->text());
-    el.appendChild(doc.createTextNode(ui->lineValueElabEdit->text()));
+    el.appendChild(doc.createTextNode(ui->elabComboBox->currentText()));
     root.appendChild(el);
     el = doc.createElement("properties");
     root.appendChild(el);
@@ -66,24 +74,6 @@ void EditView::writeXml(QString fileName, READTYPE RT)
 
         if(className.compare("QSpinBox")==0)
         {
-           /* QSpinBox *spin = (QSpinBox *) ui->tableWidget->cellWidget(row,2);
-            QDomElement subsubel = doc.createElement("restriction");
-            subsubel.setAttribute("type","range");
-            subel.appendChild(subsubel);
-
-            QDomElement subsubsubel = doc.createElement("botValue");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->minimum())));
-            subsubel.appendChild(subsubsubel);
-            subsubsubel = doc.createElement("topValue");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->maximum())));
-            subsubel.appendChild(subsubsubel);
-
-            subsubel = doc.createElement("value");
-            subsubsubel = doc.createElement("element");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->value())));
-            subsubel.appendChild(subsubsubel);
-            subel.appendChild(subsubel);*/
-
             QSpinBox *spin = (QSpinBox *) ui->tableWidget->cellWidget(row,2);
             QDomElement subsubel;
             QDomElement subsubsubel;
@@ -110,24 +100,6 @@ void EditView::writeXml(QString fileName, READTYPE RT)
         }
         else if(className.compare("QDoubleSpinBox")==0)
         {
-            /*QDoubleSpinBox *spin = (QDoubleSpinBox *) ui->tableWidget->cellWidget(row,2);
-            QDomElement subsubel = doc.createElement("restriction");
-            subsubel.setAttribute("type","range");
-            subel.appendChild(subsubel);
-
-            QDomElement subsubsubel = doc.createElement("botValue");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->minimum())));
-            subsubel.appendChild(subsubsubel);
-            subsubsubel = doc.createElement("topValue");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->maximum())));
-            subsubel.appendChild(subsubsubel);
-
-            subsubel = doc.createElement("value");
-            subsubsubel = doc.createElement("element");
-            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->value())));
-            subsubel.appendChild(subsubsubel);
-            subel.appendChild(subsubel);*/
-
             QDoubleSpinBox *spin = (QDoubleSpinBox *) ui->tableWidget->cellWidget(row,2);
             QDomElement subsubel;
             QDomElement subsubsubel;
@@ -200,23 +172,19 @@ void EditView::writeXml(QString fileName, READTYPE RT)
     QFile file(fileName);
 
     if(file.exists())
-            file.remove();
+        file.remove();
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-              return;
+        return;
 
     file.write(doc.toByteArray());
     file.close();
 }
 
-void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,const QString &SpecificElabPath, READTYPE RT)
+void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile, READTYPE RT)
 {
     QDomDocument doc;
     int row = 0;
-
-    fileDirectory = fileName;
-    this->SpecificElabPath = SpecificElabPath;
-    this->SpecificXMLFile = SpecificXMLFile;
 
     state = RT;
 
@@ -229,10 +197,14 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
     if(state == READTYPE::GENERAL){
         file.setFileName(fileName); //filename
     }
-    else {
+    else if(state == READTYPE::SPECIFIC) {
         file.setFileName(SpecificXMLFile); //filename
     }
+    else{
+        /* Unknown read type*/
+    }
 
+    qDebug() << "Opening file: " << fileName << endl;
     if (!file.open(QIODevice::ReadOnly | QFile::Text)){
         std::cerr<< "ERROR: file openning"<< std::endl;
         return;
@@ -271,12 +243,11 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
         if(state == READTYPE::GENERAL){
             ui->labelDefElab->setText(child.toElement().attributeNode("default").value());
             ui->labelDefElab->QWidget::adjustSize();
-            ui->lineValueElabEdit->setText(child.toElement().firstChild().nodeValue());
-            ui->lineValueElabEdit->setDisabled(0);
+            QString defaultElab = child.toElement().firstChild().nodeValue();
+            ui->elabComboBox->setDisabled(false);
             child = child.nextSibling();
         } else {
-           ui->labelDefElab->setText("");
-           ui->lineValueElabEdit->setDisabled(1);
+            ui->elabComboBox->setDisabled(true);
         }
 
         QDomNode childNode = child.toElement().firstChild();
@@ -321,7 +292,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
 
                                 qDebug() << "VALi: " << subchildNode.toElement().nextSibling().firstChildElement().text().toInt();
                                 if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
-                                            spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toInt());
+                                    spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toInt());
 
                                 ui->tableWidget->setCellWidget(row,2,spinItem);
                             }
@@ -342,7 +313,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                                 qDebug() << "VALf: " << subchildNode.toElement().nextSibling().firstChildElement().text().toFloat();
 
                                 if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
-                                            spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toFloat());
+                                    spinItem->setValue(subchildNode.toElement().nextSibling().firstChildElement().text().toFloat());
 
                                 ui->tableWidget->setCellWidget(row,2,spinItem);
                             }
@@ -362,7 +333,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                         qDebug() << "VALe: " << subchildNode.toElement().nextSibling().firstChildElement().text();
 
                         if(!subchildNode.toElement().nextSibling().firstChildElement().text().isNull())
-                                combo->setCurrentIndex(combo->findText(subchildNode.toElement().nextSibling().firstChildElement().text()));
+                            combo->setCurrentIndex(combo->findText(subchildNode.toElement().nextSibling().firstChildElement().text()));
 
                         flag_avoid_value=true;
                     }
@@ -380,7 +351,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
                             qDebug() << "VALif: " << subsubchildNode.toElement().firstChild().firstChild().nodeValue();
 
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                    spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
+                                spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toInt());
 
                             ui->tableWidget->setCellWidget(row,2,spinItem);
                         }
@@ -395,7 +366,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
 
                             qDebug() << "VALf: " << subsubchildNode.toElement().firstChild().nodeValue();
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                    spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
+                                spinItem->setValue(subsubchildNode.toElement().firstChild().nodeValue().toDouble());
 
                             ui->tableWidget->setCellWidget(row,2,spinItem);
                         }
@@ -408,7 +379,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
 
                             qDebug() << "VAL: " << subsubchildNode.toElement().firstChild().nodeValue();
                             if(!subsubchildNode.toElement().firstChild().nodeValue().isNull())
-                                    combo->setCurrentIndex(combo->findText(subsubchildNode.toElement().firstChild().nodeValue()));
+                                combo->setCurrentIndex(combo->findText(subsubchildNode.toElement().firstChild().nodeValue()));
 
                             ui->tableWidget->setCellWidget(row,2,combo);
                         }
@@ -437,7 +408,7 @@ void EditView::readXml(const QString &fileName, const QString &SpecificXMLFile,c
     }
 
     ui->tableWidget->setRowCount(ui->tableWidget->rowCount()-1);
-
+    ui->elabComboBox->addItems(searchElaborations());
 }
 
 EditView::~EditView()
@@ -445,63 +416,80 @@ EditView::~EditView()
     delete ui;
 }
 
+
 void EditView::on_pushButton_clicked()
 {
-    if(state == READTYPE::GENERAL)
-        writeXml(fileDirectory,READTYPE::GENERAL);
-    else
-        writeXml(SpecificXMLFile,READTYPE::SPECIFIC);
+    writeXml(fileDirectory, state);
 }
 
 
-
-void EditView::on_lineValueElabEdit_textChanged(const QString &arg1)
+void EditView::refreshSpecificButton(QString arg1)
 {
     SpecificXMLFile = SpecificElabPath + componentType + "/" + arg1 + "/" + arg1 + ".xml";
     QFile file(SpecificXMLFile);
 
     if (!file.open(QIODevice::ReadOnly | QFile::Text)){
         std::cerr<< "ERROR: file openning"<< std::endl;
-        ui->pushButton_2->setDisabled(1);
+        ui->openSpecificButton->setDisabled(1);
     }else{
         file.close();
-        ui->pushButton_2->setDisabled(0);
-        ui->pushButton_2->setText("Open Specific XML");
+        ui->openSpecificButton->setDisabled(0);
+        ui->openSpecificButton->setText("Open Specific XML");
     }
 }
 
-void EditView::on_pushButton_2_clicked()
+QStringList EditView::searchElaborations()
+{
+    QStringList elabs = QStringList();// List of elaborations
+    QString componentElabPath =  SpecificElabPath + componentType; //component's elaborations path
+
+    /*get all folders to search for java classes with the same name*/
+    QStringList dirList = QDir(componentElabPath).entryList();
+    QString currDir; //auxiliary
+
+
+    dirList.removeFirst(); //remove "."
+    dirList.removeFirst(); //remove ".."
+
+QStringListIterator it(dirList);
+    /*iterate trough folders and search for the java class*/
+    while(it.hasNext()){
+        currDir = it.next();
+        QStringList asd = QDir(componentElabPath + "/" + currDir).entryList(QStringList(currDir+".java"), QDir::Files);
+        if(asd.size() > 0){
+           qDebug() << "Elab: " << currDir;
+           elabs.append(currDir);
+        }
+        else
+            qDebug() << "Not Elab:" << currDir;
+    }
+
+    return elabs;
+}
+
+
+void EditView::on_elabComboBox_currentIndexChanged(const QString &arg1)
+{
+    refreshSpecificButton(arg1);
+}
+
+void EditView::on_openSpecificButton_clicked()
 {
     QFile file(SpecificXMLFile);
 
     if(state == READTYPE::SPECIFIC){
-        //ui->tableWidget->clearContents();
         ui->tableWidget->setRowCount(1);
 
-        /*for ( int i = 0; i <= ui->tableWidget->rowCount(); ++i )
-        {
-            ui->tableWidget->removeRow(i);
-        }*/
-
-
-        readXml(fileDirectory,SpecificXMLFile,SpecificElabPath,READTYPE::GENERAL);
-        ui->pushButton_2->setText("Open Specific XML");
+        readXml(fileDirectory,SpecificXMLFile,READTYPE::GENERAL);
+        ui->openSpecificButton->setText("Open Specific XML");
     }
     else {
         qDebug() << "-->" + SpecificXMLFile;
         qDebug() << "suck it";
-        //ui->tableWidget->clearContents();
-        //ui->tableWidget->clear();
         ui->tableWidget->setRowCount(1);
 
-        /*for ( int i = 0; i <= ui->tableWidget->rowCount(); ++i )
-        {
-            ui->tableWidget->removeRow(i);
-        }*/
 
-
-
-        readXml(fileDirectory,SpecificXMLFile,SpecificElabPath,READTYPE::SPECIFIC);
-        ui->pushButton_2->setText("Open General XML");
+        readXml(fileDirectory,SpecificXMLFile,READTYPE::SPECIFIC);
+        ui->openSpecificButton->setText("Open General XML");
     }
 }
