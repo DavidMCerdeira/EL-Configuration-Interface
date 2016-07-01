@@ -51,7 +51,7 @@ private:
 private slots:
     void loadProject();
     void helpInfo();
-    void elaborate(bool clicked);
+    void elaborate();
     void elaborationEnded(int f);
 
     void dragEnterEvent(QDragEnterEvent *e);
