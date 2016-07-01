@@ -28,7 +28,7 @@
     <widget class="QPlainTextEdit" name="consoleOutput">
      <property name="font">
       <font>
-       <family>Courier New</family>
+       <family>Monospace</family>
        <pointsize>8</pointsize>
       </font>
      </property>
@@ -39,6 +39,28 @@
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="elaborateButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Elaborate</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">

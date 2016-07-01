@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initDirectories(&dirModel_confs, QStringList("*.xml"), ui->treeView_configs);
     initDirectories(&dirModel_elabs, QStringList("*.java"), ui->treeView_elaborations);
 
-    connect(ui->elaborateButton, SIGNAL(clicked(bool)), this, SLOT(elaborate(bool)));
+    connect(ui->elaborateButton, SIGNAL(clicked()), this, SLOT(elaborate()));
 
     ui->elaborateButton->setHidden(true);
     ui->tabWidget->setHidden(true);
@@ -132,7 +132,7 @@ void MainWindow::loadDirectory()
 
 
 
-void MainWindow::elaborate(bool clicked)
+void MainWindow::elaborate()
 {
     //qDebug() << "Here";
     ui->elaborateButton->setEnabled(false);

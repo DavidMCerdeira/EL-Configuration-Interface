@@ -22,9 +22,11 @@ public:
 private slots:
     void elaborateOutputHandler();
     void onExit(int err);
-    void copySrcs(bool dummy);
+    void copySrcs();
 
     void on_showGeneratedButton_clicked();
+
+    void on_elaborateButton_clicked();
 
 signals:
     void close();

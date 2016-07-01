@@ -28,10 +28,10 @@ ConsoleOutput::ConsoleOutput(QString path, QWidget *parent) :
 #endif
 
     ui->setupUi(this);
-    connect(ui->chooseDestDirButton, SIGNAL(clicked(bool)), this, SLOT(copySrcs(bool)));
+    connect(ui->chooseDestDirButton, SIGNAL(clicked()), this, SLOT(copySrcs()));
     resize(WIND_WIDTH, WIND_HEIGHT);
 
-        elaborate();
+    elaborate();
 }
 
 ConsoleOutput::~ConsoleOutput()
@@ -96,6 +96,11 @@ void ConsoleOutput::showOutputList(QStringList strList)
 
 void ConsoleOutput::elaborate()
 {
+    ui->showGeneratedButton->setEnabled(false);
+    ui->chooseDestDirButton->setEnabled(false);
+    ui->elaborateButton->setEnabled(false);
+    ui->okButton->setEnabled(false);
+
     if(!checkRunnable()){
         return;
     }
@@ -160,6 +165,7 @@ void ConsoleOutput::onExit(int err)
     }
     ui->showGeneratedButton->setEnabled(true);
     ui->chooseDestDirButton->setEnabled(true);
+    ui->elaborateButton->setEnabled(true);
 }
 
 //https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189
@@ -192,7 +198,7 @@ static void copyRecursively(const QString &sourceFolder,
     }
 }
 
-void ConsoleOutput::copySrcs(bool dummy)
+void ConsoleOutput::copySrcs()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                     lastPath,
@@ -208,4 +214,9 @@ void ConsoleOutput::copySrcs(bool dummy)
 void ConsoleOutput::on_showGeneratedButton_clicked()
 {
     QDesktopServices::openUrl(QUrl(elaborationPath + "EL/FinalFiles"));
+}
+
+void ConsoleOutput::on_elaborateButton_clicked()
+{
+    elaborate();
 }
