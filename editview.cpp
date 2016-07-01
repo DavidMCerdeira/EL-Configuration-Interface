@@ -66,7 +66,7 @@ void EditView::writeXml(QString fileName, READTYPE RT)
 
         if(className.compare("QSpinBox")==0)
         {
-            QSpinBox *spin = (QSpinBox *) ui->tableWidget->cellWidget(row,2);
+           /* QSpinBox *spin = (QSpinBox *) ui->tableWidget->cellWidget(row,2);
             QDomElement subsubel = doc.createElement("restriction");
             subsubel.setAttribute("type","range");
             subel.appendChild(subsubel);
@@ -82,11 +82,35 @@ void EditView::writeXml(QString fileName, READTYPE RT)
             subsubsubel = doc.createElement("element");
             subsubsubel.appendChild(doc.createTextNode(QString::number(spin->value())));
             subsubel.appendChild(subsubsubel);
+            subel.appendChild(subsubel);*/
+
+            QSpinBox *spin = (QSpinBox *) ui->tableWidget->cellWidget(row,2);
+            QDomElement subsubel;
+            QDomElement subsubsubel;
+
+            if(!list_not_restrict.contains(row))
+            {
+                subsubel = doc.createElement("restriction");
+                subsubel.setAttribute("type","range");
+                subel.appendChild(subsubel);
+
+                subsubsubel = doc.createElement("botValue");
+                subsubsubel.appendChild(doc.createTextNode(QString::number(spin->minimum())));
+                subsubel.appendChild(subsubsubel);
+                subsubsubel = doc.createElement("topValue");
+                subsubsubel.appendChild(doc.createTextNode(QString::number(spin->maximum())));
+                subsubel.appendChild(subsubsubel);
+            }
+
+            subsubel = doc.createElement("value");
+            subsubsubel = doc.createElement("element");
+            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->value())));
+            subsubel.appendChild(subsubsubel);
             subel.appendChild(subsubel);
         }
         else if(className.compare("QDoubleSpinBox")==0)
         {
-            QDoubleSpinBox *spin = (QDoubleSpinBox *) ui->tableWidget->cellWidget(row,2);
+            /*QDoubleSpinBox *spin = (QDoubleSpinBox *) ui->tableWidget->cellWidget(row,2);
             QDomElement subsubel = doc.createElement("restriction");
             subsubel.setAttribute("type","range");
             subel.appendChild(subsubel);
@@ -97,6 +121,30 @@ void EditView::writeXml(QString fileName, READTYPE RT)
             subsubsubel = doc.createElement("topValue");
             subsubsubel.appendChild(doc.createTextNode(QString::number(spin->maximum())));
             subsubel.appendChild(subsubsubel);
+
+            subsubel = doc.createElement("value");
+            subsubsubel = doc.createElement("element");
+            subsubsubel.appendChild(doc.createTextNode(QString::number(spin->value())));
+            subsubel.appendChild(subsubsubel);
+            subel.appendChild(subsubel);*/
+
+            QDoubleSpinBox *spin = (QDoubleSpinBox *) ui->tableWidget->cellWidget(row,2);
+            QDomElement subsubel;
+            QDomElement subsubsubel;
+
+            if(!list_not_restrict.contains(row))
+            {
+                subsubel = doc.createElement("restriction");
+                subsubel.setAttribute("type","range");
+                subel.appendChild(subsubel);
+
+                subsubsubel = doc.createElement("botValue");
+                subsubsubel.appendChild(doc.createTextNode(QString::number(spin->minimum())));
+                subsubel.appendChild(subsubsubel);
+                subsubsubel = doc.createElement("topValue");
+                subsubsubel.appendChild(doc.createTextNode(QString::number(spin->maximum())));
+                subsubel.appendChild(subsubsubel);
+            }
 
             subsubel = doc.createElement("value");
             subsubsubel = doc.createElement("element");
